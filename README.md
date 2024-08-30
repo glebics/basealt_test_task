@@ -25,7 +25,7 @@ This project is a Python-based CLI utility designed to compare binary packages b
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/yourusername/altlinux_package_comparator.git
+    git clone https://github.com/glebics/basealt_test_task.git
     cd altlinux_package_comparator
     ```
 
