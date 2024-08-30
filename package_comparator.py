@@ -1,11 +1,9 @@
 import os
 import json
 import requests
-from datetime import datetime
-from packaging.version import parse
+from rpm import labelCompare  # Импортируем функцию для сравнения версий из rpm библиотеки
 
 API_URL = "https://rdb.altlinux.org/api/export/branch_binary_packages"
-
 
 def fetch_packages(branch, arch):
     """
@@ -19,7 +17,6 @@ def fetch_packages(branch, arch):
         print(f"Ошибка запроса к API: {e}")
         return []
 
-
 def save_packages_to_file(branch, arch, packages):
     """
     Функция для сохранения списка пакетов в файл.
@@ -29,21 +26,18 @@ def save_packages_to_file(branch, arch, packages):
         json.dump(packages, file, indent=2)
     print(f"Сохранено: {filename}")
 
-
 def load_packages_from_file(branch, arch):
     """
     Функция для загрузки списка пакетов из последнего файла.
     """
     filename = os.path.join("data", f"{branch}_{arch}_packages.json")
     if not os.path.exists(filename):
-        print(
-            f"Нет доступного файла для загрузки пакетов из ветки {branch} для архитектуры {arch}")
+        print(f"Нет доступного файла для загрузки пакетов из ветки {branch} для архитектуры {arch}")
         return []
 
     with open(filename, "r") as file:
         print(f"Загружен файл: {filename}")
         return json.load(file)
-
 
 def compare_packages(sisyphus_packages, p10_packages):
     """
@@ -85,9 +79,9 @@ def compare_packages(sisyphus_packages, p10_packages):
     # Найти пакеты, у которых version-release больше в sisyphus, чем в p10
     for name, pkg in sisyphus_dict.items():
         if name in p10_dict:
-            sisyphus_version = f"{pkg['epoch']}:{pkg['version']}-{pkg['release']}"
-            p10_version = f"{p10_dict[name]['epoch']}:{p10_dict[name]['version']}-{p10_dict[name]['release']}"
-            if parse(sisyphus_version) > parse(p10_version):
+            sisyphus_version = (pkg['epoch'], pkg['version'], pkg['release'])
+            p10_version = (p10_dict[name]['epoch'], p10_dict[name]['version'], p10_dict[name]['release'])
+            if labelCompare(sisyphus_version, p10_version) > 0:
                 result["version_higher_in_sisyphus"].append({
                     "name": pkg["name"],
                     "epoch": pkg["epoch"],
@@ -98,10 +92,8 @@ def compare_packages(sisyphus_packages, p10_packages):
 
     return result
 
-
 def main():
-    architectures = ["aarch64", "x86_64", "i586",
-                     "armh"]  # Добавьте все архитектуры
+    architectures = ["aarch64", "x86_64", "i586", "armh"]  # Добавьте все архитектуры
 
     for arch in architectures:
         # Получаем пакеты для обеих веток
@@ -120,13 +112,10 @@ def main():
         comparison_result = compare_packages(sisyphus_packages, p10_packages)
 
         # Сохраняем результат сравнения в файл
-        comparison_filename = os.path.join(
-            "comparison_results", f"comparison_result_{arch}.json")
+        comparison_filename = os.path.join("comparison_results", f"comparison_result_{arch}.json")
         with open(comparison_filename, "w") as result_file:
             json.dump(comparison_result, result_file, indent=2)
-            print(
-                f"Результаты сравнения для {arch} сохранены в {comparison_filename}")
-
+            print(f"Результаты сравнения для {arch} сохранены в {comparison_filename}")
 
 if __name__ == "__main__":
     main()
