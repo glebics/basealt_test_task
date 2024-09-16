@@ -12,7 +12,10 @@ def fetch_packages(branch, arch):
     try:
         response = requests.get(f"{API_URL}/{branch}", params={"arch": arch})
         response.raise_for_status()
-        return response.json().get("packages", [])
+        packages = response.json().get("packages", [])
+        if not packages:
+            print(f"Нет данных для ветки {branch} и архитектуры {arch}.")
+        return packages
     except requests.RequestException as e:
         print(f"Ошибка запроса к API: {e}")
         return []
@@ -30,6 +33,11 @@ def save_packages_to_file(branch, arch, packages):
     """
     Функция для сохранения списка пакетов в файл.
     """
+    if not packages:
+        print(
+            f"Нет пакетов для сохранения для ветки {branch} и архитектуры {arch}.")
+        return
+
     # Создаем директорию, если она не существует
     create_directory("data")
 
@@ -142,8 +150,8 @@ def compare_packages(sisyphus_packages, p10_packages):
 
 
 def main():
-    architectures = ["aarch64", "x86_64", "i586",
-                     "armh"]
+    # Обновленный список существующих архитектур
+    architectures = ["aarch64", "i586", "armh"]
 
     # Создаем директорию для результатов сравнения, если она не существует
     create_directory("comparison_results")

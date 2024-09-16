@@ -47,7 +47,7 @@ To fetch package data from both branches (`sisyphus` and `p10`) for a specific a
 python3 cli.py --arch aarch64 --fetch
 ```
 
-- **`--arch`**: Specifies the architecture to compare (e.g., `aarch64`, `x86_64`, `i586`, `armh`).
+- **`--arch`**: Specifies the architecture to compare (e.g., `aarch64`, `i586`, `armh`).
 - **`--fetch`**: Fetches the package data from the API and saves them to JSON files.
 
 ### Comparing Packages
@@ -77,10 +77,10 @@ The CLI utility will generate the following output files in the `comparison_resu
     python3 cli.py --arch aarch64 --fetch
     ```
 
-- **Compare Packages for `x86_64` (assuming data is already fetched):**
+- **Compare Packages for `i586` (assuming data is already fetched):**
 
     ```bash
-    python3 cli.py --arch x86_64
+    python3 cli.py --arch i586
     ```
 
 ## Author
