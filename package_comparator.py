@@ -18,10 +18,21 @@ def fetch_packages(branch, arch):
         return []
 
 
+def create_directory(directory):
+    """
+    Функция для создания директории, если она не существует.
+    """
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+
 def save_packages_to_file(branch, arch, packages):
     """
     Функция для сохранения списка пакетов в файл.
     """
+    # Создаем директорию, если она не существует
+    create_directory("data")
+
     filename = os.path.join("data", f"{branch}_{arch}_packages.json")
     with open(filename, "w") as file:
         json.dump(packages, file, indent=2)
@@ -132,7 +143,10 @@ def compare_packages(sisyphus_packages, p10_packages):
 
 def main():
     architectures = ["aarch64", "x86_64", "i586",
-                     "armh"]  # Добавьте все архитектуры
+                     "armh"]
+
+    # Создаем директорию для результатов сравнения, если она не существует
+    create_directory("comparison_results")
 
     for arch in architectures:
         # Получаем пакеты для обеих веток
