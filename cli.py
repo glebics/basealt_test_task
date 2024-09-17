@@ -22,16 +22,30 @@ def main():
         sisyphus_packages = fetch_packages("sisyphus", args.arch)
         p10_packages = fetch_packages("p10", args.arch)
 
-        # Сохраняем пакеты в файлы
-        save_packages_to_file("sisyphus", args.arch, sisyphus_packages)
-        save_packages_to_file("p10", args.arch, p10_packages)
+        # Сохраняем пакеты в файлы, если они существуют
+        if sisyphus_packages:
+            save_packages_to_file("sisyphus", args.arch, sisyphus_packages)
+        if p10_packages:
+            save_packages_to_file("p10", args.arch, p10_packages)
 
     # Загружаем пакеты из файлов
     sisyphus_packages = load_packages_from_file("sisyphus", args.arch)
     p10_packages = load_packages_from_file("p10", args.arch)
 
+    # Проверяем, есть ли данные для сравнения
+    if not sisyphus_packages and not p10_packages:
+        print(
+            f"Нет данных для сравнения для архитектуры {args.arch}. Пропуск создания файлов.")
+        return
+
     # Сравниваем пакеты
     comparison_result = compare_packages(sisyphus_packages, p10_packages)
+
+    # Проверяем, есть ли результат сравнения
+    if not any(comparison_result.values()):
+        print(
+            f"Нет различий для архитектуры {args.arch}. Пропуск создания файлов.")
+        return
 
     # Создаем папку для результатов сравнения, если она не существует
     os.makedirs("comparison_results", exist_ok=True)
