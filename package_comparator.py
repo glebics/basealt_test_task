@@ -150,8 +150,8 @@ def compare_packages(sisyphus_packages, p10_packages):
 
 
 def main():
-    # Обновленный список существующих архитектур
-    architectures = ["aarch64", "i586", "armh"]
+    architectures = ["aarch64", "armh", "mipsel", "ppc64le", "x86_64",
+                     "i586", "s390x", "riscv64", "sparc64"]  # Полный список архитектур
 
     # Создаем директорию для результатов сравнения, если она не существует
     create_directory("comparison_results")
@@ -161,6 +161,12 @@ def main():
         sisyphus_packages = fetch_packages("sisyphus", arch)
         p10_packages = fetch_packages("p10", arch)
 
+        # Проверяем, есть ли данные для обеих веток
+        if not sisyphus_packages or not p10_packages:
+            print(
+                f"Нет данных для архитектуры {arch}. Пропуск создания файлов.")
+            continue
+
         # Сохраняем пакеты в файлы
         save_packages_to_file("sisyphus", arch, sisyphus_packages)
         save_packages_to_file("p10", arch, p10_packages)
@@ -168,6 +174,12 @@ def main():
         # Загружаем пакеты из файлов
         sisyphus_packages = load_packages_from_file("sisyphus", arch)
         p10_packages = load_packages_from_file("p10", arch)
+
+        # Проверяем, есть ли данные после загрузки из файлов
+        if not sisyphus_packages or not p10_packages:
+            print(
+                f"Нет данных для архитектуры {arch} после загрузки файлов. Пропуск создания файлов.")
+            continue
 
         # Сравниваем пакеты
         comparison_result = compare_packages(sisyphus_packages, p10_packages)
